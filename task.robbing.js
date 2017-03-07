@@ -38,7 +38,7 @@ mod.checkForRequiredCreeps = (flag) => {
             return;
         }
         // robbers set homeRoom if closer storage exists
-        const storageRoom = ROBBER_REHOME && mod.strategies.robber.homeRoom(roomName) || spawnRoom;
+        const storageRoom = ROBBER_REHOME && (mod.strategies.robber.homeRoom(flag) || spawnRoom);
         Task.spawn(
             Task.robbing.creep.robbing, // creepDefinition
             { // destiny
@@ -296,12 +296,12 @@ mod.strategies = {
     },
     robber: {
         name: `robber-${mod.name}`,
-        homeRoom: function(flagRoomName) {
+        homeRoom: function(flag) {
             // Explicity set by user?
-            const memory = Task.mining.memory(mod.getFlag(flagRoomName));
+            const memory = Task.robbing.memory(flag);
             if(memory.storageRoom) return Game.rooms[memory.storageRoom];
             // Otherwise, score it
-            return Room.bestSpawnRoomFor(flagRoomName);
+            return Room.bestSpawnRoomFor(flag.pos.roomName);
         },
         spawnRoom: function({roomName, minWeight}) {
             return Room.findSpawnRoom({
