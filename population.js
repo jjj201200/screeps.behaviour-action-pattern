@@ -196,7 +196,7 @@ mod.analyze = function(){
 
             if( entry.creepType &&
                 ( creep.ticksToLive === undefined ||
-                creep.ticksToLive > entry.spawningTime )) {
+                Creep.Setup.isWorkingAge(entry) )) {
                     this.countCreep(creep.room, entry);
             }
 
@@ -265,6 +265,11 @@ mod.execute = function(){
 mod.cleanup = function(){
     let unregister = name => Population.unregisterCreep(name);
     this.died.forEach(unregister);
+};
+mod.sortEntries = function() {
+    let temp = {};
+    _.map(_.sortBy(Memory.population, p => p.creepName), c => temp[c.creepName] = c);
+    Memory.population = temp;
 };
 mod.stats = {
     creep: {
