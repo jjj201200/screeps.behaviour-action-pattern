@@ -1,8 +1,5 @@
 const action = new Creep.Action('bulldozing');
 module.exports = action;
-action.isValidAction = function(creep) {
-    return true;
-};
 action.isValidTarget = function(target) {
     return target instanceof ConstructionSite && Task.reputation.notAlly(target.owner.username);
 };
