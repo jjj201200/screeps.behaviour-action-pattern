@@ -5,7 +5,7 @@ action.isValidTarget = function(target) {
     return target instanceof ConstructionSite && Task.reputation.notAlly(target.owner.username);
 };
 action.newTarget = function(creep) {
-    return _(creep.room.constructionSites)
+    const target = _(creep.room.constructionSites)
         .filter(action.isValidTarget)
         .max(target => {
             let rating;
@@ -18,6 +18,7 @@ action.newTarget = function(creep) {
             rating -= creep.pos.getRangeTo(target);
             return rating;
         });
+    if (target instanceof ConstructionSite) return target;
 };
 action.work = function(creep) {
     return creep.move(creep.pos.getDirectionTo(creep.target));
