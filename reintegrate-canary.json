@@ -1,0 +1,32 @@
+{
+  "ocs.internal": {
+    "reset": "upstream/dev",
+    "merge": [
+      "upstream/task/SK",
+      "upstream/feature/actionRenewing",
+      "upstream/wip-creepBody",
+      "upstream/wip-train",
+      "upstream/feature/flagSequence"
+    ]
+  },
+  "ocs.public": {
+    "reset": "upstream/dev",
+    "merge": [
+      "upstream/task/powerMiningDev",
+      "upstream/change/infectObjects",
+      "upstream/fix/roomRecovery",
+      "upstream/bug/roomCollapsedWaste",
+      "upstream/feature/semiautoConstruction",
+      "upstream/feature/robberRehome",
+      "upstream/action/bulldoze",
+      "upstream/change/robustLv5MoreHaulers",
+      "upstream/change/observerRefactor",
+      "upstream/change/costMatrixCaching",
+      "upstream/task/labTechNew",
+      "upstream/fix/minersRepair",
+      "upstream/fix/mineralMiners",
+      "upstream/fix/determinatedSpot",
+      "upstream/fix/RCL8Haulers"
+    ]
+  }
+}
