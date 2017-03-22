@@ -1,6 +1,6 @@
 let mod = {};
 module.exports = mod;
-mod.name = 'hauler';
+mod.name = 'labTech';
 mod.run = function(creep) {
     // Assign next Action
     let oldTargetId = creep.data.targetId;
@@ -25,12 +25,13 @@ mod.nextAction = function(creep){
         return;
     }
     const outflowPriority = [
+        Creep.action.reallocating,
         Creep.action.feeding,
         Creep.action.charging,
         Creep.action.fueling,
     ];
     let priority = outflowPriority;
-    if( creep.sum * 2 < creep.carryCapacity ) {
+    if( creep.sum < creep.carryCapacity / 2 ) {
         priority = [
             Creep.action.uncharging,
             Creep.action.picking,
@@ -38,7 +39,6 @@ mod.nextAction = function(creep){
         Creep.action.withdrawing.debounce(creep, outflowPriority, function(withdrawing) {
             priority.push(withdrawing);
         });
-        priority.push(Creep.action.reallocating);
         priority.push(Creep.action.idle);
     } else {
         priority = outflowPriority.concat([

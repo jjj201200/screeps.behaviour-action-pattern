@@ -323,14 +323,19 @@ action.newTargetTerminal = function(creep) {
             for (var i=0;i<orders.length;i++) {
                 type = orders[i].type;
                 amount = terminal.getNeeds(type);
-                if (amount > 0) {
-                    // found a needed resource so check lower priority containers
-                    if (DEBUG && TRACE) trace('Action', { actionName: 'reallocating', roomName: room.name, creepName: creep.name, structureId: terminal.id, resourceType: type, needs: amount });
-                    if (room.storage && room.storage.store[type] && !(type==RESOURCE_ENERGY && room.storage.charge < 0.5)) {
-                        if (DEBUG && TRACE) trace('Action', { actionName: 'reallocating', roomName: room.name, creepName: creep.name, targetStructureId: room.storage.id, resourceType: type, targetNeeds: room.storage.store[type] });
-                        creep.data.reallocating = type;
-                        return room.storage;
-                    }
+                if (amount > 0) break;
+            }
+            if (amount == 0) {
+                type = RESOURCE_ENERGY;
+                amount = terminal.getNeeds(type);
+            }
+            if (amount > 0) {
+                // found a needed resource so check lower priority containers
+                if (DEBUG && TRACE) trace('Action', { actionName: 'reallocating', roomName: room.name, creepName: creep.name, structureId: terminal.id, resourceType: type, needs: amount });
+                if (room.storage && room.storage.store[type] && !(type==RESOURCE_ENERGY && room.storage.charge < 0.5)) {
+                    if (DEBUG && TRACE) trace('Action', { actionName: 'reallocating', roomName: room.name, creepName: creep.name, targetStructureId: room.storage.id, resourceType: type, targetNeeds: room.storage.store[type] });
+                    creep.data.reallocating = type;
+                    return room.storage;
                 }
             }
         }
@@ -367,7 +372,7 @@ action.isValidTarget = function(target){
 };
 action.isAddableAction = function(creep){
     let pop = creep.room.population;
-    return (creep.sum == 0) && (!pop || !pop.actionCount[this.name] || pop.actionCount[this.name] < this.maxPerAction);
+    return (!pop || !pop.actionCount[this.name] || pop.actionCount[this.name] < this.maxPerAction);
 };
 action.isAddableTarget = function(target){
     return true;
@@ -487,21 +492,10 @@ action.unloadContainer = function(creep) {
     }
     for (let i=0;i<store.length;i++) {
         let res = store[i];
-        if (res && target.store[res] > 0 && (target.structureType == STRUCTURE_LAB || target.getNeeds(res) < 0)) {
-            let dat = this.findNeeding(room, res, 1, target.id);
-            //if (dat && dat.structure.id == target.id) dat = null;
-            if (dat) {
-                amount = dat.amount;
-            }
-            //if (!amount) amount = -this.terminalNeeds(target, res);
-            if (amount > 0) {
-                resource = res;
-                break;
-            } else if (storage && dat && dat.structure.structureType == STRUCTURE_STORAGE && res == RESOURCE_ENERGY) {
-                amount = storage.storeCapacity-storage.sum;
-                resource = res;
-                break;
-            }
+        amount = -target.getNeeds(res);
+        if (amount > 0 && (target.structureType == STRUCTURE_LAB || target.getNeeds(res) < 0)) {
+            resource = res;
+            break;
         }
     }
     if (resource) {
