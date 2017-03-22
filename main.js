@@ -136,6 +136,7 @@ global.install = () => {
         Events: load('events'),
         Grafana: GRAFANA ? load('grafana') : undefined,
         Visuals: ROOM_VISUALS && !Memory.CPU_CRITICAL ? load('visuals') : undefined,
+        OCSMemory: load('ocsMemory'),
     });
     _.assign(global.Task, {
         guard: load("task.guard"),
@@ -226,6 +227,11 @@ global.install = () => {
     Spawn.extend();
     FlagDir.extend();
     Task.populate();
+
+    // reload cached data from memory segment
+    for (let i = MEM_SEGMENTS.COSTMATRIX_CACHE.start; i <= MEM_SEGMENTS.COSTMATRIX_CACHE.end; i++) {
+        OCSMemory.activateSegment(i);
+    }
     // custom extend
     if( global.mainInjection.extend ) global.mainInjection.extend();
     if (DEBUG) logSystem('Global.install', 'Code reloaded.');
@@ -255,6 +261,11 @@ module.exports.loop = function () {
     if (Memory.cloaked === undefined) {
         Memory.cloaked = {};
     }
+
+    // process loaded memory segments
+    OCSMemory.processSegments();
+    p.checkCPU('processSegments', PROFILING.ANALYZE_LIMIT);
+
     // ensure up to date parameters
     _.assign(global, load("parameter"));
 
@@ -312,8 +323,12 @@ module.exports.loop = function () {
     p.checkCPU('FlagDir.cleanup', PROFILING.ANALYZE_LIMIT);
     Population.cleanup();
     p.checkCPU('Population.cleanup', PROFILING.ANALYZE_LIMIT);
+    Room.cleanup(); 
+    p.checkCPU('Room.cleanup', PROFILING.ANALYZE_LIMIT);
     // custom cleanup
     if( global.mainInjection.cleanup ) global.mainInjection.cleanup();
+    OCSMemory.cleanup(); // must come last
+    p.checkCPU('OCSMemory.cleanup', PROFILING.ANALYZE_LIMIT);
 
     if ( ROOM_VISUALS && !Memory.CPU_CRITICAL && Visuals ) Visuals.run(); // At end to correctly display used CPU.
     p.checkCPU('visuals', PROFILING.EXECUTE_LIMIT);
